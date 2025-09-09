@@ -6,21 +6,25 @@ import datetime
 
 class Calendar:
     
+    COLOR_SUNDAY_BG = "#F5FF90"
+    COLOR_HOLIDAY_BG = "#D6FFB7"
+    
     def __init__(self):
         self.root = tk.Tk()
         
         self.current_month = datetime.datetime.now().month
+        self.current_month = 10
         self.current_year = datetime.datetime.now().year
         
         self.create_widgets()
         self.update_calendar()
         
     def create_widgets(self):
-        main_frame = ttk.Frame(self.root, padding="10")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        main_frame = ttk.Frame(self.root)
+        main_frame.grid()
         
-        self.calendar_frame = ttk.Frame(main_frame, relief='solid', borderwidth=1)
-        self.calendar_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.calendar_frame = ttk.Frame(main_frame)
+        self.calendar_frame.grid()
         
             
         self.create_calendar_grid()
@@ -59,7 +63,18 @@ class Calendar:
                 cell = self.day_cells[week_idx][day_idx]
                 cell.config(text=str(day))
                 
-                cell.config(bg='white', fg='black')
+                if self.is_sunday(day, self.current_month, self.current_year):
+                    cell.config(bg=self.COLOR_SUNDAY_BG, fg='black')
+                else:
+                    cell.config(bg='white', fg='black')
+                
+    
+    # TODO: Move to separate file          
+    def is_sunday(self, day: int, month: int, year: int) -> bool:
+        """Preveri, ali je določen dan nedelja"""
+        date_obj = datetime.date(year, month, day)
+        return date_obj.weekday() == 6  # Nedelja = 6
+        
     
     def run(self):
         self.root.mainloop()
