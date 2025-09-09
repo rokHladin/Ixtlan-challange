@@ -37,6 +37,14 @@ class Calendar:
                                     values=self.month_names, state="readonly", width=12)
         self.month_combo.grid(row=0, column=1, padx=(0, 20))
         self.month_combo.bind('<<ComboboxSelected>>', self.on_month_changed)
+        
+        
+        ttk.Label(nav_frame, text="Leto: ").grid(row=0, column=2, padx=(0, 5))
+        self.year_var = tk.IntVar()
+        self.year_entry = ttk.Entry(nav_frame, textvariable=self.year_var, width=8)
+        self.year_entry.grid(row=0, column=3, padx=(0, 20))
+        self.year_entry.bind('<Return>', self.on_year_changed)
+        self.year_entry.bind('<FocusOut>', self.on_year_changed)
 
         
         
@@ -54,6 +62,15 @@ class Calendar:
                 self.update_calendar()
         except Exception as e:
             messagebox.showerror("Napaka", f"Napaka pri spremembi meseca: {e}")
+            
+    def on_year_changed(self, event=None):
+        try:
+            year = self.year_var.get()
+            if year:
+                self.current_year = year
+                self.update_calendar()
+        except Exception as e:
+            messagebox.showerror("Napaka", f"Napaka pri spremembi leta: {e}")
 
             
     def create_calendar_grid(self):
@@ -73,6 +90,7 @@ class Calendar:
     def update_calendar(self):
         
         self.month_var.set(self.month_names[self.current_month - 1])
+        self.year_var.set(self.current_year)
         
         for week in self.day_cells:
             for cell in week:
