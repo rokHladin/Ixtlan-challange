@@ -4,6 +4,7 @@ from tkinter import messagebox
 
 import calendar
 import datetime
+from typing import List
 
 class Calendar:
     
@@ -13,11 +14,14 @@ class Calendar:
     
     def __init__(self):
         self.root = tk.Tk()
+        self.setup_window()
         
         self.current_month = datetime.datetime.now().month
         self.current_year = datetime.datetime.now().year
         
         self.holidays = set()
+        
+        self.day_names:List[str] = ["Pon", "Tor", "Sre", "Čet", "Pet", "Sob", "Ned"]
         
         self.month_names = [
             "Januar", "Februar", "Marec", "April", "Maj", "Junij",
@@ -29,9 +33,30 @@ class Calendar:
         self.create_widgets()
         self.update_calendar()
         
+    def setup_window(self):
+        """Nastavi osnovno okno aplikacije"""
+        self.root.title("Enostaven koledar")
+        self.root.geometry("800x600")
+        self.root.resizable(True, True)
+        
+        # Center the window
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (800 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (600 // 2)
+        self.root.geometry(f"800x600+{x}+{y}")
+        
+        # Configure style
+        style = ttk.Style()
+        style.theme_use('clam')
+        
     def create_widgets(self):
-        main_frame = ttk.Frame(self.root)
-        main_frame.grid()
+        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        main_frame.columnconfigure(1, weight=1)
+        main_frame.rowconfigure(2, weight=1)
         
         nav_frame = ttk.Frame(main_frame)
         nav_frame.grid(row=0, column=0, columnspan=3, pady=(0, 10), sticky=(tk.W, tk.E))
@@ -62,9 +87,19 @@ class Calendar:
         jump_button = ttk.Button(nav_frame, text="Skoči", command=self.jump_to_date)
         jump_button.grid(row=0, column=6)
         
+        self.title_var = tk.StringVar()
+        title_label = ttk.Label(main_frame, textvariable=self.title_var, font=('Arial', 16, 'bold'))
+        title_label.grid(row=1, column=0, columnspan=3, pady=10)
         
-        self.calendar_frame = ttk.Frame(main_frame)
-        self.calendar_frame.grid()
+        
+        self.calendar_frame = ttk.Frame(main_frame, relief='solid', borderwidth=1)
+        self.calendar_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Resize the calendar frame
+        for i in range(7):
+            self.calendar_frame.columnconfigure(i, weight=1)
+        for i in range(7):  # Maximum 7 rows (headers + 6 weeks)
+            self.calendar_frame.rowconfigure(i, weight=1)
     
         self.create_calendar_grid()
         
@@ -122,6 +157,14 @@ class Calendar:
 
             
     def create_calendar_grid(self):
+        
+        self.day_headers = []
+        for col, day_name in enumerate(self.day_names):
+            header = tk.Label(self.calendar_frame, text=day_name, font=('Arial', 12, 'bold'),
+                            bg='lightgray', relief='raised', borderwidth=1)
+            header.grid(row=0, column=col, sticky=(tk.W, tk.E, tk.N, tk.S), padx=1, pady=1)
+            self.day_headers.append(header)
+        
         # Create cells for days
         self.day_cells = []
         # 6 weeks, because day can start on sunday
@@ -144,7 +187,6 @@ class Calendar:
                     line = line.strip()
                     if line and not line.startswith('#'):  # Skip empty lines and comments
                         self.parse_holiday_line(line, line_num)
-                        print(line, line_num)
         except Exception as e:
             messagebox.showerror("Napaka", f"Napaka pri branju datoteke s prazniki: {e}")
             
@@ -174,12 +216,15 @@ class Calendar:
             self.holidays.add((day, month, year, repeat_flag == 'Y'))
             
         except Exception as e:
-            print(f"Napaka v vrstici {line_num}: {line.strip()} - {e}")
+            messagebox.showerror("Napaka", f"Napaka v vrstici {line_num}: {line.strip()} - {e}")
             
     def update_calendar(self):
         
         self.month_var.set(self.month_names[self.current_month - 1])
         self.year_var.set(self.current_year)
+        
+        # Posodobi naslov
+        self.title_var.set(f"{self.month_names[self.current_month - 1]} {self.current_year}")
         
         for week in self.day_cells:
             for cell in week:
@@ -187,7 +232,6 @@ class Calendar:
         
         month_days = calendar.monthcalendar(self.current_year, self.current_month)
         
-        print(month_days)
         
         for week_idx, week in enumerate(month_days):
             if week_idx >= len(self.day_cells):
