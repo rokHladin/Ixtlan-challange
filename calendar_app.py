@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 import calendar
 import datetime
@@ -13,8 +14,11 @@ class Calendar:
         self.root = tk.Tk()
         
         self.current_month = datetime.datetime.now().month
-        self.current_month = 10
         self.current_year = datetime.datetime.now().year
+        self.month_names = [
+            "Januar", "Februar", "Marec", "April", "Maj", "Junij",
+            "Julij", "Avgust", "September", "Oktober", "November", "December"
+        ]
         
         self.create_widgets()
         self.update_calendar()
@@ -23,11 +27,34 @@ class Calendar:
         main_frame = ttk.Frame(self.root)
         main_frame.grid()
         
+        nav_frame = ttk.Frame(main_frame)
+        nav_frame.grid(row=0, column=0, columnspan=3, pady=(0, 10), sticky=(tk.W, tk.E))
+
+        
+        ttk.Label(nav_frame, text="Mesec:").grid(row=0, column=0, padx=(0, 5))
+        self.month_var = tk.StringVar()
+        self.month_combo = ttk.Combobox(nav_frame, textvariable=self.month_var,
+                                    values=self.month_names, state="readonly", width=12)
+        self.month_combo.grid(row=0, column=1, padx=(0, 20))
+        self.month_combo.bind('<<ComboboxSelected>>', self.on_month_changed)
+
+        
+        
         self.calendar_frame = ttk.Frame(main_frame)
         self.calendar_frame.grid()
-        
-            
+    
         self.create_calendar_grid()
+        
+    def on_month_changed(self, event=None):
+        # Sprememba meseca
+        try:
+            month_name = self.month_var.get()
+            if month_name in self.month_names:
+                self.current_month = self.month_names.index(month_name) + 1
+                self.update_calendar()
+        except Exception as e:
+            messagebox.showerror("Napaka", f"Napaka pri spremembi meseca: {e}")
+
             
     def create_calendar_grid(self):
         # Create cells for days
@@ -44,6 +71,9 @@ class Calendar:
             self.day_cells.append(week_cells)
             
     def update_calendar(self):
+        
+        self.month_var.set(self.month_names[self.current_month - 1])
+        
         for week in self.day_cells:
             for cell in week:
                 cell.config(text="", bg='white', fg='black')
