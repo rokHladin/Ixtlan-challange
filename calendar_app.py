@@ -8,9 +8,20 @@ from typing import List
 
 class Calendar:
     
-    COLOR_SUNDAY_BG = "#F5FF90"
-    COLOR_HOLIDAY_BG = "#ffcccc"
-    COLOR_GREEN_BG = "#D6FFB7"
+    # Color palette
+    COLOR_PRIMARY = "#6366F1"        # Modern indigo
+    COLOR_PRIMARY_LIGHT = "#8B5CF6"  # Light purple
+    COLOR_SECONDARY = "#06B6D4"      # Cyan
+    COLOR_BACKGROUND = "#F8FAFC"     # Light gray background
+    COLOR_SURFACE = "#FFFFFF"        # White surface
+    COLOR_SURFACE_VARIANT = "#F1F5F9" # Light gray variant
+    COLOR_ON_SURFACE = "#1E293B"     # Dark text
+    COLOR_ON_SURFACE_VARIANT = "#64748B" # Gray text
+    COLOR_SUNDAY_BG = "#FEF3C7"      # Soft yellow
+    COLOR_HOLIDAY_BG = "#FEE2E2"     # Soft red
+    COLOR_TODAY_BG = "#DBEAFE"       # Soft blue
+    COLOR_HOVER = "#E2E8F0"          # Light hover
+    COLOR_SHADOW = "#E2E8F0"         # Shadow color
     
     def __init__(self):
         self.root = tk.Tk()
@@ -35,13 +46,14 @@ class Calendar:
         
     def setup_window(self):
         """Nastavi osnovno okno aplikacije"""
-        self.root.title("Enostaven koledar")
+        self.root.title("Koledar")
         self.root.geometry("800x600")
         self.root.resizable(True, True)
+        self.root.configure(bg=self.COLOR_BACKGROUND)
         
         # Center the window
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (800 // 2)
+        x = (self.root.winfo_screenwidth() // 2) - (8000 // 2)
         y = (self.root.winfo_screenheight() // 2) - (600 // 2)
         self.root.geometry(f"800x600+{x}+{y}")
         
@@ -49,59 +61,187 @@ class Calendar:
         style = ttk.Style()
         style.theme_use('clam')
         
+        # Configure styles for ttk widgets
+        style.configure('Modern.TFrame', background=self.COLOR_SURFACE)
+        style.configure('Nav.TFrame', background=self.COLOR_SURFACE_VARIANT, 
+                       relief='flat', borderwidth=1)
+        
+        # Enhanced label styling
+        style.configure('Modern.TLabel', background=self.COLOR_SURFACE, 
+                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 11))
+        style.configure('Nav.TLabel', background=self.COLOR_SURFACE_VARIANT, 
+                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 11, 'normal'))
+        style.configure('Title.TLabel', background=self.COLOR_SURFACE,
+                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 20, 'bold'))
+        style.configure('NavTitle.TLabel', background=self.COLOR_SURFACE_VARIANT,
+                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 18, 'bold'))
+        style.configure('Header.TLabel', background=self.COLOR_PRIMARY,
+                       foreground='white', font=('Segoe UI', 12, 'bold'))
+        
+        # Enhanced button styling with rounded appearance
+        style.configure('Modern.TButton', 
+                       font=('Segoe UI', 10),
+                       borderwidth=1,
+                       focuscolor='none',
+                       padding=(12, 8),
+                       relief='flat')
+        style.configure('Primary.TButton', 
+                       font=('Segoe UI', 10, 'bold'),
+                       foreground='white',
+                       borderwidth=0,
+                       focuscolor='none',
+                       padding=(16, 10),
+                       relief='flat')
+        
+        # Enhanced input styling
+        style.configure('Modern.TCombobox', 
+                       font=('Segoe UI', 11),
+                       fieldbackground=self.COLOR_SURFACE,
+                       borderwidth=2,
+                       insertwidth=2,
+                       padding=(8, 6))
+        style.configure('Modern.TEntry', 
+                       font=('Segoe UI', 11),
+                       fieldbackground=self.COLOR_SURFACE,
+                       borderwidth=2,
+                       insertwidth=2,
+                       padding=(8, 6))
+        
+        # Enhanced button hover and state effects
+        style.map('Modern.TButton',
+                 background=[('!active', self.COLOR_SURFACE_VARIANT),
+                           ('active', self.COLOR_HOVER),
+                           ('pressed', self.COLOR_PRIMARY_LIGHT)],
+                 bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
+                            ('active', self.COLOR_PRIMARY),
+                            ('pressed', self.COLOR_PRIMARY)])
+        style.map('Primary.TButton',
+                 background=[('!active', self.COLOR_PRIMARY),
+                           ('active', self.COLOR_PRIMARY_LIGHT),
+                           ('pressed', self.COLOR_SECONDARY)],
+                 relief=[('pressed', 'flat'), ('!pressed', 'flat')])
+        
+        # Enhanced input field effects
+        style.map('Modern.TCombobox',
+                 fieldbackground=[('!active', self.COLOR_SURFACE),
+                                ('active', self.COLOR_SURFACE)],
+                 bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
+                            ('active', self.COLOR_PRIMARY),
+                            ('focus', self.COLOR_PRIMARY)])
+        style.map('Modern.TEntry',
+                 fieldbackground=[('!active', self.COLOR_SURFACE),
+                                ('active', self.COLOR_SURFACE)],
+                 bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
+                            ('active', self.COLOR_PRIMARY),
+                            ('focus', self.COLOR_PRIMARY)])
+        
+        # Set minimum window size
+        self.root.minsize(900, 600)
+        
     def create_widgets(self):
-        main_frame = ttk.Frame(self.root, padding="10")
+        # Main container
+        main_frame = ttk.Frame(self.root, style='Modern.TFrame', padding="25")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(1, weight=1)
+        main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(2, weight=1)
         
-        nav_frame = ttk.Frame(main_frame)
-        nav_frame.grid(row=0, column=0, columnspan=3, pady=(0, 10), sticky=(tk.W, tk.E))
-
+        # Navigation container with card-like appearance
+        nav_container = ttk.Frame(main_frame, style='Nav.TFrame', padding="16")
+        nav_container.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 25))
+        nav_container.columnconfigure(1, weight=1)
+        
+        # Controls section
+        controls_frame = ttk.Frame(nav_container, style='Nav.TFrame')
+        controls_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 12))
+        controls_frame.columnconfigure(2, weight=1)
+        
+        # Month and Year controls (left side)
+        month_year_frame = ttk.Frame(controls_frame, style='Nav.TFrame')
+        month_year_frame.grid(row=0, column=0, sticky=tk.W)
+        
         # Month selection
-        ttk.Label(nav_frame, text="Mesec:").grid(row=0, column=0, padx=(0, 5))
+        ttk.Label(month_year_frame, text="Mesec:", style='Nav.TLabel').grid(row=0, column=0, padx=(0, 8), pady=(0, 2))
         self.month_var = tk.StringVar()
-        self.month_combo = ttk.Combobox(nav_frame, textvariable=self.month_var,
-                                    values=self.month_names, state="readonly", width=12)
-        self.month_combo.grid(row=0, column=1, padx=(0, 20))
+        self.month_combo = ttk.Combobox(month_year_frame, textvariable=self.month_var,
+                                    values=self.month_names, state="readonly", 
+                                    width=13, style='Modern.TCombobox')
+        self.month_combo.grid(row=0, column=1, padx=(0, 20), pady=(0, 2))
         self.month_combo.bind('<<ComboboxSelected>>', self.on_month_changed)
 
         # Year input
-        ttk.Label(nav_frame, text="Leto: ").grid(row=0, column=2, padx=(0, 5))
+        ttk.Label(month_year_frame, text="Leto:", style='Nav.TLabel').grid(row=0, column=2, padx=(0, 8), pady=(0, 2))
         self.year_var = tk.IntVar()
-        self.year_entry = ttk.Entry(nav_frame, textvariable=self.year_var, width=8)
-        self.year_entry.grid(row=0, column=3, padx=(0, 20))
+        self.year_entry = ttk.Entry(month_year_frame, textvariable=self.year_var, 
+                                   width=8, style='Modern.TEntry', justify='center')
+        self.year_entry.grid(row=0, column=3, pady=(0, 2))
         self.year_entry.bind('<Return>', self.on_year_changed)
         self.year_entry.bind('<FocusOut>', self.on_year_changed)
 
-        # Jump to date input
-        ttk.Label(nav_frame, text="Skok na datum (DD.MM.YYYY):").grid(row=0, column=4, padx=(0, 5))
-        self.jump_date_var = tk.StringVar()
-        self.jump_date_entry = ttk.Entry(nav_frame, textvariable=self.jump_date_var, width=15)
-        self.jump_date_entry.grid(row=0, column=5, padx=(0, 10))
-        self.jump_date_entry.bind('<Return>', self.jump_to_date)
+        # Date jump controls (right side)
+        jump_frame = ttk.Frame(controls_frame, style='Nav.TFrame')
+        jump_frame.grid(row=0, column=3, sticky=tk.E)
         
-        jump_button = ttk.Button(nav_frame, text="Skoči", command=self.jump_to_date)
-        jump_button.grid(row=0, column=6)
+        # Jump to date
+        ttk.Label(jump_frame, text="Skoči na:", style='Nav.TLabel').grid(row=0, column=1, padx=(0, 8), pady=(0, 2))
+        self.jump_date_var = tk.StringVar()
+        self.jump_date_entry = ttk.Entry(jump_frame, textvariable=self.jump_date_var, 
+                                        width=11, style='Modern.TEntry', justify='center')
+        self.jump_date_entry.grid(row=0, column=2, padx=(0, 12), pady=(0, 2))
+        self.jump_date_entry.bind('<Return>', self.jump_to_date)
+        self.jump_date_entry.insert(0, "DD.MM.YYYY")
+        self.jump_date_entry.bind('<FocusIn>', lambda e: self.clear_placeholder(e))
+        self.jump_date_entry.bind('<FocusOut>', lambda e: self.restore_placeholder(e))
+        
+        jump_button = ttk.Button(jump_frame, text="Pojdi", command=self.jump_to_date,
+                               style='Primary.TButton', cursor='hand2')
+        jump_button.grid(row=0, column=3, pady=(0, 2))
+        
+        # Title section
+        title_section = ttk.Frame(nav_container, style='Nav.TFrame')
+        title_section.grid(row=1, column=0, columnspan=2, pady=(12, 0))
+        title_section.columnconfigure(1, weight=1)
+        
         
         self.title_var = tk.StringVar()
-        title_label = ttk.Label(main_frame, textvariable=self.title_var, font=('Arial', 16, 'bold'))
-        title_label.grid(row=1, column=0, columnspan=3, pady=10)
+        title_label = ttk.Label(title_section, textvariable=self.title_var, 
+                               style='NavTitle.TLabel')
+        title_label.grid(row=0, column=1, padx=10)
         
         
-        self.calendar_frame = ttk.Frame(main_frame, relief='solid', borderwidth=1)
-        self.calendar_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S))
+        # Calendar container
+        calendar_container = ttk.Frame(main_frame, style='Modern.TFrame')
+        calendar_container.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(10, 0))
+        calendar_container.columnconfigure(0, weight=1)
+        calendar_container.rowconfigure(0, weight=1)
         
-        # Resize the calendar frame
+        # Shadow frame (simulated)
+        shadow_frame = tk.Frame(calendar_container, bg=self.COLOR_SHADOW, height=2)
+        shadow_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(2, 0))
+        
+        self.calendar_frame = tk.Frame(calendar_container, bg=self.COLOR_SURFACE, 
+                                     relief='flat', borderwidth=0)
+        self.calendar_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Configure calendar grid
         for i in range(7):
             self.calendar_frame.columnconfigure(i, weight=1)
         for i in range(7):  # Maximum 7 rows (headers + 6 weeks)
             self.calendar_frame.rowconfigure(i, weight=1)
     
         self.create_calendar_grid()
+        
+    def clear_placeholder(self, event):
+        """Clear placeholder text when entry gets focus"""
+        if event.widget.get() == "DD.MM.YYYY":
+            event.widget.delete(0, tk.END)
+            
+    def restore_placeholder(self, event):
+        """Restore placeholder text if entry is empty when losing focus"""
+        if not event.widget.get():
+            event.widget.insert(0, "DD.MM.YYYY")
         
     def on_month_changed(self, event=None):
         # Sprememba meseca
@@ -126,7 +266,7 @@ class Calendar:
         """Skoči na določen datum"""
         try:
             date_str = self.jump_date_var.get().strip()
-            if not date_str:
+            if not date_str or date_str == "DD.MM.YYYY":
                 return
             
             # Parse data in format DD.MM.YYYY
@@ -147,8 +287,8 @@ class Calendar:
             self.current_year = year
             self.update_calendar()
             
-            # Clear the jump date field
-            self.jump_date_var.set("")
+            # Clear the jump date field and restore placeholder
+            self.jump_date_var.set("DD.MM.YYYY")
             
         except ValueError as e:
             messagebox.showerror("Napaka", f"Neveljaven datum: {e}")
@@ -160,9 +300,12 @@ class Calendar:
         
         self.day_headers = []
         for col, day_name in enumerate(self.day_names):
-            header = tk.Label(self.calendar_frame, text=day_name, font=('Arial', 12, 'bold'),
-                            bg='lightgray', relief='raised', borderwidth=1)
-            header.grid(row=0, column=col, sticky=(tk.W, tk.E, tk.N, tk.S), padx=1, pady=1)
+            header = tk.Label(self.calendar_frame, text=day_name, 
+                            font=('Segoe UI', 14, 'bold'),
+                            bg=self.COLOR_PRIMARY, fg='white',
+                            relief='flat', borderwidth=0, height=3)
+            header.grid(row=0, column=col, sticky=(tk.W, tk.E, tk.N, tk.S), 
+                       padx=1, pady=(0, 2))
             self.day_headers.append(header)
         
         # Create cells for days
@@ -172,12 +315,17 @@ class Calendar:
             week_cells = []
             # 7 days in a week
             for col in range(7):
-                cell = tk.Label(self.calendar_frame, text="", font=('Arial', 12),
-                            relief='raised', borderwidth=1, width=6, height=3)
-                cell.grid(row=row, column=col, sticky=(tk.W, tk.E, tk.N, tk.S), padx=1, pady=1)
+                cell = tk.Label(self.calendar_frame, text="", 
+                              font=('Segoe UI', 13),
+                              bg=self.COLOR_SURFACE, fg=self.COLOR_ON_SURFACE,
+                              relief='flat', borderwidth=0, width=8, height=4,
+                             )
+                cell.grid(row=row, column=col, sticky=(tk.W, tk.E, tk.N, tk.S), 
+                         padx=1, pady=1)
+                
                 week_cells.append(cell)
             self.day_cells.append(week_cells)
-            
+
     def load_holidays(self):
         holidays_file = "holidays.txt"
         
@@ -223,15 +371,17 @@ class Calendar:
         self.month_var.set(self.month_names[self.current_month - 1])
         self.year_var.set(self.current_year)
         
-        # Posodobi naslov
+        # Update title
         self.title_var.set(f"{self.month_names[self.current_month - 1]} {self.current_year}")
         
+        # Clear all cells
         for week in self.day_cells:
             for cell in week:
-                cell.config(text="", bg='white', fg='black')
+                cell.config(text="", bg=self.COLOR_SURFACE, 
+                          fg=self.COLOR_ON_SURFACE)
         
         month_days = calendar.monthcalendar(self.current_year, self.current_month)
-        
+        today = datetime.date.today()
         
         for week_idx, week in enumerate(month_days):
             if week_idx >= len(self.day_cells):
@@ -244,12 +394,28 @@ class Calendar:
                 cell = self.day_cells[week_idx][day_idx]
                 cell.config(text=str(day))
                 
-                if self.is_sunday(day, self.current_month, self.current_year):
-                    cell.config(bg=self.COLOR_SUNDAY_BG, fg='black')
+                # Check if this is today
+                is_today = (day == today.day and 
+                           self.current_month == today.month and 
+                           self.current_year == today.year)
+                
+                # Color cells based on the day
+                if is_today:
+                    cell.config(bg=self.COLOR_TODAY_BG, 
+                              fg=self.COLOR_ON_SURFACE, 
+                              font=('Segoe UI', 13, 'bold'))
                 elif self.is_holiday(day, self.current_month, self.current_year):
-                    cell.config(bg=self.COLOR_HOLIDAY_BG, fg='black')
+                    cell.config(bg=self.COLOR_HOLIDAY_BG, 
+                              fg=self.COLOR_ON_SURFACE,
+                              font=('Segoe UI', 13, 'bold'))
+                elif self.is_sunday(day, self.current_month, self.current_year):
+                    cell.config(bg=self.COLOR_SUNDAY_BG, 
+                              fg=self.COLOR_ON_SURFACE_VARIANT,
+                              font=('Segoe UI', 13))
                 else:
-                    cell.config(bg='white', fg='black')
+                    cell.config(bg=self.COLOR_SURFACE, 
+                              fg=self.COLOR_ON_SURFACE,
+                              font=('Segoe UI', 13))
                 
     
     # TODO: Move to separate file          
