@@ -1,0 +1,19 @@
+# Datoteka s prazniki
+# Format: DD.MM|Y/N (Y=ponavljanje vsako leto, N=enkratni praznik)
+01.01|Y  # Novo leto
+02.01|Y  # Novo leto
+08.02|Y  # Prešernov dan
+27.04|Y  # Dan upora proti okupatorju
+01.05|Y  # Praznik dela
+02.05|Y  # Praznik dela
+25.06|Y  # Dan državnosti
+15.08|Y  # Marijino vnebovzetje
+31.10|Y  # Dan reformacije
+01.11|Y  # Dan spomina na mrtve
+25.12|Y  # Božič
+26.12|Y  # Dan samostojnosti in enotnosti
+
+01.04.2024|N  # Velikonočni ponedeljek 2024
+21.04.2025|N  # Velikonočni ponedeljek 2025
+06.04.2025|N  # Velikonočni ponedeljek 2026
+
