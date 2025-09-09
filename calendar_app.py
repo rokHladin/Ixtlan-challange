@@ -30,15 +30,15 @@ class Calendar:
         nav_frame = ttk.Frame(main_frame)
         nav_frame.grid(row=0, column=0, columnspan=3, pady=(0, 10), sticky=(tk.W, tk.E))
 
-        
+        # Month selection
         ttk.Label(nav_frame, text="Mesec:").grid(row=0, column=0, padx=(0, 5))
         self.month_var = tk.StringVar()
         self.month_combo = ttk.Combobox(nav_frame, textvariable=self.month_var,
                                     values=self.month_names, state="readonly", width=12)
         self.month_combo.grid(row=0, column=1, padx=(0, 20))
         self.month_combo.bind('<<ComboboxSelected>>', self.on_month_changed)
-        
-        
+
+        # Year input
         ttk.Label(nav_frame, text="Leto: ").grid(row=0, column=2, padx=(0, 5))
         self.year_var = tk.IntVar()
         self.year_entry = ttk.Entry(nav_frame, textvariable=self.year_var, width=8)
@@ -46,6 +46,15 @@ class Calendar:
         self.year_entry.bind('<Return>', self.on_year_changed)
         self.year_entry.bind('<FocusOut>', self.on_year_changed)
 
+        # Jump to date input
+        ttk.Label(nav_frame, text="Skok na datum (DD.MM.YYYY):").grid(row=0, column=4, padx=(0, 5))
+        self.jump_date_var = tk.StringVar()
+        self.jump_date_entry = ttk.Entry(nav_frame, textvariable=self.jump_date_var, width=15)
+        self.jump_date_entry.grid(row=0, column=5, padx=(0, 10))
+        self.jump_date_entry.bind('<Return>', self.jump_to_date)
+        
+        jump_button = ttk.Button(nav_frame, text="Skoči", command=self.jump_to_date)
+        jump_button.grid(row=0, column=6)
         
         
         self.calendar_frame = ttk.Frame(main_frame)
@@ -71,6 +80,39 @@ class Calendar:
                 self.update_calendar()
         except Exception as e:
             messagebox.showerror("Napaka", f"Napaka pri spremembi leta: {e}")
+            
+    def jump_to_date(self, event=None):
+        """Skoči na določen datum"""
+        try:
+            date_str = self.jump_date_var.get().strip()
+            if not date_str:
+                return
+            
+            # Parse data in format DD.MM.YYYY
+            parts = date_str.split('.')
+            if len(parts) != 3:
+                messagebox.showerror("Napaka", "Datum mora biti v formatu DD.MM.YYYY")
+                return
+            
+            day = int(parts[0])
+            month = int(parts[1])
+            year = int(parts[2])
+            
+            # Check if the date is valid
+            datetime.date(year, month, day)  # To bo sprožilo izjemo, če datum ni veljaven
+            
+            # Set new month and year
+            self.current_month = month
+            self.current_year = year
+            self.update_calendar()
+            
+            # Clear the jump date field
+            self.jump_date_var.set("")
+            
+        except ValueError as e:
+            messagebox.showerror("Napaka", f"Neveljaven datum: {e}")
+        except Exception as e:
+            messagebox.showerror("Napaka", f"Napaka pri skoku na datum: {e}")
 
             
     def create_calendar_grid(self):
