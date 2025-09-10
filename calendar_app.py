@@ -6,7 +6,9 @@ import calendar
 import datetime
 from typing import List
 
-from utils import is_sunday, is_holiday, is_today
+from utils import is_sunday, is_today
+
+from holiday_store import HolidayStore
 
 class Calendar:
     
@@ -32,7 +34,7 @@ class Calendar:
         self.current_month = datetime.datetime.now().month
         self.current_year = datetime.datetime.now().year
         
-        self.holidays = set()
+        self.holiday_store = HolidayStore(holidays_file="holidays.txt")
         
         self.day_names:List[str] = ["Pon", "Tor", "Sre", "Čet", "Pet", "Sob", "Ned"]
         
@@ -40,8 +42,6 @@ class Calendar:
             "Januar", "Februar", "Marec", "April", "Maj", "Junij",
             "Julij", "Avgust", "September", "Oktober", "November", "December"
         ]
-        
-        self.load_holidays()
         
         self.create_widgets()
         self.update_calendar()
@@ -326,47 +326,7 @@ class Calendar:
                 
                 week_cells.append(cell)
             self.day_cells.append(week_cells)
-
-    def load_holidays(self):
-        holidays_file = "holidays.txt"
         
-        try:
-            with open(holidays_file, 'r', encoding='utf-8') as f:
-                for line_num, line in enumerate(f, 1):
-                    line = line.strip()
-                    if line and not line.startswith('#'):  # Skip empty lines and comments
-                        self.parse_holiday_line(line, line_num)
-        except Exception as e:
-            messagebox.showerror("Napaka", f"Napaka pri branju datoteke s prazniki: {e}")
-            
-    def parse_holiday_line(self, line: str, line_num: int):
-        try:
-            # Remove comments
-            if '#' in line:
-                line = line[:line.index('#')]
-            
-            parts = line.strip().split('|')
-            if len(parts) != 2:
-                return
-            
-            date_part = parts[0].strip()
-            repeat_flag = parts[1].strip().upper()
-            
-            # Parse date
-            if len(date_part.split('.')) == 2:  # DD.MM format (repeatable)
-                day, month = map(int, date_part.split('.'))
-                year = None
-            elif len(date_part.split('.')) == 3:  # DD.MM.YYYY format (specific year)
-                day, month, year = map(int, date_part.split('.'))
-            else:
-                return
-            
-            # Add holiday
-            self.holidays.add((day, month, year, repeat_flag == 'Y'))
-            
-        except Exception as e:
-            messagebox.showerror("Napaka", f"Napaka v vrstici {line_num}: {line.strip()} - {e}")
-            
     def update_calendar(self):
         
         self.month_var.set(self.month_names[self.current_month - 1])
@@ -399,7 +359,7 @@ class Calendar:
                     cell.config(bg=self.COLOR_TODAY_BG, 
                                 fg=self.COLOR_ON_SURFACE, 
                                 font=('Segoe UI', 13, 'bold'))
-                elif is_holiday(day, self.current_month, self.current_year, self.holidays):
+                elif self.holiday_store.is_holiday(day, self.current_month, self.current_year):
                     cell.config(bg=self.COLOR_HOLIDAY_BG, 
                                 fg=self.COLOR_ON_SURFACE,
                                 font=('Segoe UI', 13, 'bold'))
