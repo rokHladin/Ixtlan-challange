@@ -6,6 +6,8 @@ import calendar
 import datetime
 from typing import List
 
+from utils import is_sunday, is_holiday, is_today
+
 class Calendar:
     
     # Color palette
@@ -64,79 +66,79 @@ class Calendar:
         # Configure styles for ttk widgets
         style.configure('Modern.TFrame', background=self.COLOR_SURFACE)
         style.configure('Nav.TFrame', background=self.COLOR_SURFACE_VARIANT, 
-                       relief='flat', borderwidth=1)
+                        relief='flat', borderwidth=1)
         
         # Enhanced label styling
         style.configure('Modern.TLabel', background=self.COLOR_SURFACE, 
-                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 11))
+                        foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 11))
         style.configure('Nav.TLabel', background=self.COLOR_SURFACE_VARIANT, 
-                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 11, 'normal'))
+                        foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 11, 'normal'))
         style.configure('Title.TLabel', background=self.COLOR_SURFACE,
-                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 20, 'bold'))
+                        foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 20, 'bold'))
         style.configure('NavTitle.TLabel', background=self.COLOR_SURFACE_VARIANT,
-                       foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 18, 'bold'))
+                        foreground=self.COLOR_ON_SURFACE, font=('Segoe UI', 18, 'bold'))
         style.configure('Header.TLabel', background=self.COLOR_PRIMARY,
-                       foreground='white', font=('Segoe UI', 12, 'bold'))
+                        foreground='white', font=('Segoe UI', 12, 'bold'))
         
         # Enhanced button styling with rounded appearance
         style.configure('Modern.TButton', 
-                       font=('Segoe UI', 10),
-                       borderwidth=1,
-                       focuscolor='none',
-                       padding=(12, 8),
-                       relief='flat')
+                        font=('Segoe UI', 10),
+                        borderwidth=1,
+                        focuscolor='none',
+                        padding=(12, 8),
+                        relief='flat')
         style.configure('Primary.TButton', 
-                       font=('Segoe UI', 10, 'bold'),
-                       foreground='white',
-                       borderwidth=0,
-                       focuscolor='none',
-                       padding=(16, 10),
-                       relief='flat')
+                        font=('Segoe UI', 10, 'bold'),
+                        foreground='white',
+                        borderwidth=0,
+                        focuscolor='none',
+                        padding=(16, 10),
+                        relief='flat')
         
         # Enhanced input styling
         style.configure('Modern.TCombobox', 
-                       font=('Segoe UI', 11),
-                       fieldbackground=self.COLOR_SURFACE,
-                       borderwidth=2,
-                       insertwidth=2,
-                       padding=(8, 6))
+                        font=('Segoe UI', 11),
+                        fieldbackground=self.COLOR_SURFACE,
+                        borderwidth=2,
+                        insertwidth=2,
+                        padding=(8, 6))
         style.configure('Modern.TEntry', 
-                       font=('Segoe UI', 11),
-                       fieldbackground=self.COLOR_SURFACE,
-                       borderwidth=2,
-                       insertwidth=2,
-                       padding=(8, 6))
+                        font=('Segoe UI', 11),
+                        fieldbackground=self.COLOR_SURFACE,
+                        borderwidth=2,
+                        insertwidth=2,
+                        padding=(8, 6))
         
         # Enhanced button hover and state effects
         style.map('Modern.TButton',
-                 background=[('!active', self.COLOR_SURFACE_VARIANT),
-                           ('active', self.COLOR_HOVER),
-                           ('pressed', self.COLOR_PRIMARY_LIGHT)],
-                 bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
+                    background=[('!active', self.COLOR_SURFACE_VARIANT),
+                                ('active', self.COLOR_HOVER),
+                                ('pressed', self.COLOR_PRIMARY_LIGHT)],
+                    bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
                             ('active', self.COLOR_PRIMARY),
                             ('pressed', self.COLOR_PRIMARY)])
         style.map('Primary.TButton',
-                 background=[('!active', self.COLOR_PRIMARY),
-                           ('active', self.COLOR_PRIMARY_LIGHT),
-                           ('pressed', self.COLOR_SECONDARY)],
-                 relief=[('pressed', 'flat'), ('!pressed', 'flat')])
+                    background=[('!active', self.COLOR_PRIMARY),
+                            ('active', self.COLOR_PRIMARY_LIGHT),
+                            ('pressed', self.COLOR_SECONDARY)],
+                    relief=[('pressed', 'flat'), ('!pressed', 'flat')])
         
         # Enhanced input field effects
         style.map('Modern.TCombobox',
-                 fieldbackground=[('!active', self.COLOR_SURFACE),
+                    fieldbackground=[('!active', self.COLOR_SURFACE),
                                 ('active', self.COLOR_SURFACE)],
-                 bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
+                    bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
                             ('active', self.COLOR_PRIMARY),
                             ('focus', self.COLOR_PRIMARY)])
         style.map('Modern.TEntry',
-                 fieldbackground=[('!active', self.COLOR_SURFACE),
+                    fieldbackground=[('!active', self.COLOR_SURFACE),
                                 ('active', self.COLOR_SURFACE)],
-                 bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
+                    bordercolor=[('!active', self.COLOR_ON_SURFACE_VARIANT),
                             ('active', self.COLOR_PRIMARY),
                             ('focus', self.COLOR_PRIMARY)])
         
         # Set minimum window size
-        self.root.minsize(900, 600)
+        self.root.minsize(800, 600)
         
     def create_widgets(self):
         # Main container
@@ -175,7 +177,7 @@ class Calendar:
         ttk.Label(month_year_frame, text="Leto:", style='Nav.TLabel').grid(row=0, column=2, padx=(0, 8), pady=(0, 2))
         self.year_var = tk.IntVar()
         self.year_entry = ttk.Entry(month_year_frame, textvariable=self.year_var, 
-                                   width=8, style='Modern.TEntry', justify='center')
+                                    width=8, style='Modern.TEntry', justify='center')
         self.year_entry.grid(row=0, column=3, pady=(0, 2))
         self.year_entry.bind('<Return>', self.on_year_changed)
         self.year_entry.bind('<FocusOut>', self.on_year_changed)
@@ -196,7 +198,7 @@ class Calendar:
         self.jump_date_entry.bind('<FocusOut>', lambda e: self.restore_placeholder(e))
         
         jump_button = ttk.Button(jump_frame, text="Pojdi", command=self.jump_to_date,
-                               style='Primary.TButton', cursor='hand2')
+                                style='Primary.TButton', cursor='hand2')
         jump_button.grid(row=0, column=3, pady=(0, 2))
         
         # Title section
@@ -207,7 +209,7 @@ class Calendar:
         
         self.title_var = tk.StringVar()
         title_label = ttk.Label(title_section, textvariable=self.title_var, 
-                               style='NavTitle.TLabel')
+                                style='NavTitle.TLabel')
         title_label.grid(row=0, column=1, padx=10)
         
         
@@ -222,7 +224,7 @@ class Calendar:
         shadow_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(2, 0))
         
         self.calendar_frame = tk.Frame(calendar_container, bg=self.COLOR_SURFACE, 
-                                     relief='flat', borderwidth=0)
+                                        relief='flat', borderwidth=0)
         self.calendar_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure calendar grid
@@ -244,7 +246,6 @@ class Calendar:
             event.widget.insert(0, "DD.MM.YYYY")
         
     def on_month_changed(self, event=None):
-        # Sprememba meseca
         try:
             month_name = self.month_var.get()
             if month_name in self.month_names:
@@ -263,7 +264,7 @@ class Calendar:
             messagebox.showerror("Napaka", f"Napaka pri spremembi leta: {e}")
             
     def jump_to_date(self, event=None):
-        """Skoči na določen datum"""
+        """Jump to a specific date"""
         try:
             date_str = self.jump_date_var.get().strip()
             if not date_str or date_str == "DD.MM.YYYY":
@@ -305,7 +306,7 @@ class Calendar:
                             bg=self.COLOR_PRIMARY, fg='white',
                             relief='flat', borderwidth=0, height=3)
             header.grid(row=0, column=col, sticky=(tk.W, tk.E, tk.N, tk.S), 
-                       padx=1, pady=(0, 2))
+                        padx=1, pady=(0, 2))
             self.day_headers.append(header)
         
         # Create cells for days
@@ -316,12 +317,12 @@ class Calendar:
             # 7 days in a week
             for col in range(7):
                 cell = tk.Label(self.calendar_frame, text="", 
-                              font=('Segoe UI', 13),
-                              bg=self.COLOR_SURFACE, fg=self.COLOR_ON_SURFACE,
-                              relief='flat', borderwidth=0, width=8, height=4,
-                             )
+                                font=('Segoe UI', 13),
+                                bg=self.COLOR_SURFACE, fg=self.COLOR_ON_SURFACE,
+                                relief='flat', borderwidth=0, width=8, height=4,
+                                )
                 cell.grid(row=row, column=col, sticky=(tk.W, tk.E, tk.N, tk.S), 
-                         padx=1, pady=1)
+                            padx=1, pady=1)
                 
                 week_cells.append(cell)
             self.day_cells.append(week_cells)
@@ -378,10 +379,9 @@ class Calendar:
         for week in self.day_cells:
             for cell in week:
                 cell.config(text="", bg=self.COLOR_SURFACE, 
-                          fg=self.COLOR_ON_SURFACE)
+                            fg=self.COLOR_ON_SURFACE)
         
         month_days = calendar.monthcalendar(self.current_year, self.current_month)
-        today = datetime.date.today()
         
         for week_idx, week in enumerate(month_days):
             if week_idx >= len(self.day_cells):
@@ -394,45 +394,24 @@ class Calendar:
                 cell = self.day_cells[week_idx][day_idx]
                 cell.config(text=str(day))
                 
-                # Check if this is today
-                is_today = (day == today.day and 
-                           self.current_month == today.month and 
-                           self.current_year == today.year)
-                
                 # Color cells based on the day
-                if is_today:
+                if is_today(day, self.current_month, self.current_year):
                     cell.config(bg=self.COLOR_TODAY_BG, 
-                              fg=self.COLOR_ON_SURFACE, 
-                              font=('Segoe UI', 13, 'bold'))
-                elif self.is_holiday(day, self.current_month, self.current_year):
+                                fg=self.COLOR_ON_SURFACE, 
+                                font=('Segoe UI', 13, 'bold'))
+                elif is_holiday(day, self.current_month, self.current_year, self.holidays):
                     cell.config(bg=self.COLOR_HOLIDAY_BG, 
-                              fg=self.COLOR_ON_SURFACE,
-                              font=('Segoe UI', 13, 'bold'))
-                elif self.is_sunday(day, self.current_month, self.current_year):
+                                fg=self.COLOR_ON_SURFACE,
+                                font=('Segoe UI', 13, 'bold'))
+                elif is_sunday(day, self.current_month, self.current_year):
                     cell.config(bg=self.COLOR_SUNDAY_BG, 
-                              fg=self.COLOR_ON_SURFACE_VARIANT,
-                              font=('Segoe UI', 13))
+                                fg=self.COLOR_ON_SURFACE_VARIANT,
+                                font=('Segoe UI', 13))
                 else:
                     cell.config(bg=self.COLOR_SURFACE, 
-                              fg=self.COLOR_ON_SURFACE,
-                              font=('Segoe UI', 13))
-                
-    
-    # TODO: Move to separate file          
-    def is_sunday(self, day: int, month: int, year: int) -> bool:
-        """Check if the given day is a Sunday"""
-        date_obj = datetime.date(year, month, day)
-        return date_obj.weekday() == 6  # Nedelja = 6
-    
-    def is_holiday(self, day: int, month: int, year: int) -> bool:
-        """Check if the given day is a holiday"""
-        for h_day, h_month, h_year, is_yearly in self.holidays:
-            if h_month == month and h_day == day:
-                if is_yearly or (h_year and h_year == year):
-                    return True
-        return False
-        
-    
+                                fg=self.COLOR_ON_SURFACE,
+                                font=('Segoe UI', 13))
+                    
     def run(self):
         self.root.mainloop()
         
