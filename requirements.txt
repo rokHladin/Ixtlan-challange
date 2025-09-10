@@ -1,0 +1,4 @@
+# For creating executable file:
+pyinstaller>=5.0
+
+# Note: App works with Python 3.6 or newer
