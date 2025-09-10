@@ -11,6 +11,19 @@ from utils import is_sunday, is_today
 from holiday_store import HolidayStore
 
 class Calendar:
+    """    
+    This class creates a fully-featured calendar interface with month navigation,
+    date jumping, and visual highlighting for special dates (holidays, weekends, today).
+    The interface uses a modern color palette and responsive design.
+    
+    Attributes:        
+        root (tk.Tk): Main tkinter window
+        current_month (int): Currently displayed month (1-12)
+        current_year (int): Currently displayed year
+        holiday_store (HolidayStore): Holiday data management instance
+        day_names (List[str]): Slovenian day names for calendar headers
+        month_names (List[str]): Slovenian month names for navigation
+    """
     
     # Color palette
     COLOR_PRIMARY = "#6366F1"        # Modern indigo
@@ -28,6 +41,13 @@ class Calendar:
     COLOR_SHADOW = "#E2E8F0"         # Shadow color
     
     def __init__(self):
+        """
+        Initialize the Calendar application.
+        
+        Sets up the main window, initializes date variables, loads holiday data,
+        defines localized day/month names, creates the UI widgets, and displays
+        the current month's calendar.
+        """
         self.root = tk.Tk()
         self.setup_window()
         
@@ -47,7 +67,13 @@ class Calendar:
         self.update_calendar()
         
     def setup_window(self):
-        """Nastavi osnovno okno aplikacije"""
+        """
+        Configure the main application window and ttk styles.
+        
+        Sets up window properties (title, size, position), configures ttk themes
+        and styles for various UI components including buttons, labels, entries,
+        and comboboxes. Also defines hover effects and state-based styling.
+        """
         self.root.title("Koledar")
         self.root.geometry("800x600")
         self.root.resizable(True, True)
@@ -141,6 +167,17 @@ class Calendar:
         self.root.minsize(800, 600)
         
     def create_widgets(self):
+        """
+        Create and configure all UI widgets for the calendar application.
+        
+        Builds the complete UI structure including:
+        - Main container frame
+        - Navigation controls (month/year selection, date jump)
+        - Calendar title display
+        - Calendar grid container
+        
+        Uses ttk widgets with custom styling for a modern appearance.
+        """
         # Main container
         main_frame = ttk.Frame(self.root, style='Modern.TFrame', padding="25")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -236,16 +273,35 @@ class Calendar:
         self.create_calendar_grid()
         
     def clear_placeholder(self, event):
-        """Clear placeholder text when entry gets focus"""
+        """
+        Clear placeholder text when entry widget receives focus.
+        
+        Args:
+            event: tkinter event object containing the widget that received focus
+        """
         if event.widget.get() == "DD.MM.YYYY":
             event.widget.delete(0, tk.END)
             
     def restore_placeholder(self, event):
-        """Restore placeholder text if entry is empty when losing focus"""
+        """
+        Restore placeholder text if entry widget is empty when losing focus.
+        
+        Args:
+            event: tkinter event object containing the widget that lost focus
+        """
         if not event.widget.get():
             event.widget.insert(0, "DD.MM.YYYY")
         
     def on_month_changed(self, event=None):
+        """
+        Handle month selection change from the combobox.
+        
+        Updates the current_month attribute based on the selected month name
+        and refreshes the calendar display.
+        
+        Args:
+            event: tkinter event object (optional, defaults to None)
+        """
         try:
             month_name = self.month_var.get()
             if month_name in self.month_names:
@@ -255,6 +311,15 @@ class Calendar:
             messagebox.showerror("Napaka", f"Napaka pri spremembi meseca: {e}")
             
     def on_year_changed(self, event=None):
+        """
+        Handle year input change from the entry widget.
+        
+        Updates the current_year attribute based on the entered year value
+        and refreshes the calendar display.
+        
+        Args:
+            event: tkinter event object (optional, defaults to None)
+        """
         try:
             year = self.year_var.get()
             if year:
@@ -264,7 +329,18 @@ class Calendar:
             messagebox.showerror("Napaka", f"Napaka pri spremembi leta: {e}")
             
     def jump_to_date(self, event=None):
-        """Jump to a specific date"""
+        """
+        Jump to a specific date entered by the user.
+        
+        Parses date input in DD.MM.YYYY format, validates the date,
+        and navigates to the corresponding month and year.
+        
+        Args:
+            event: tkinter event object (optional, defaults to None)
+            
+        Raises:
+            ValueError: If the date format is invalid or date doesn't exist
+        """
         try:
             date_str = self.jump_date_var.get().strip()
             if not date_str or date_str == "DD.MM.YYYY":
@@ -298,6 +374,16 @@ class Calendar:
 
             
     def create_calendar_grid(self):
+        """
+        Create the calendar grid layout with day headers and date cells.
+        
+        Creates:
+        - Row of day name headers (Pon, Tor, Sre, etc.)
+        - 6x7 grid of date cells for displaying days (6 weeks max)
+        
+        All cells are initialized as empty labels that will be populated
+        by update_calendar().
+        """
         
         self.day_headers = []
         for col, day_name in enumerate(self.day_names):
@@ -328,6 +414,20 @@ class Calendar:
             self.day_cells.append(week_cells)
         
     def update_calendar(self):
+        """
+        Update the calendar display with current month and year data.
+        
+        Refreshes the calendar by:
+        - Updating month/year controls with current values
+        - Updating the title display
+        - Clearing all existing date cells
+        - Populating cells with current month's days
+        - Applying appropriate styling based on date type:
+          * Today's date: highlighted in blue
+          * Holidays: highlighted in red
+          * Sundays: highlighted in yellow
+          * Regular days: default styling
+        """
         
         self.month_var.set(self.month_names[self.current_month - 1])
         self.year_var.set(self.current_year)
@@ -373,10 +473,22 @@ class Calendar:
                                 font=('Segoe UI', 13))
                     
     def run(self):
+        """
+        Start the main application event loop.
+        
+        Begins the tkinter mainloop to handle user interactions
+        and keep the application running.
+        """
         self.root.mainloop()
         
 
 def main():
+    """
+    Main entry point for the calendar application.
+    
+    Creates and runs a Calendar instance, with basic error handling
+    to catch and display any startup exceptions.
+    """
     try:
         app = Calendar()
         app.run()
