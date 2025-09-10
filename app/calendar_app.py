@@ -81,7 +81,7 @@ class Calendar:
         
         # Center the window
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (8000 // 2)
+        x = (self.root.winfo_screenwidth() // 2) - (800 // 2)
         y = (self.root.winfo_screenheight() // 2) - (600 // 2)
         self.root.geometry(f"800x600+{x}+{y}")
         
