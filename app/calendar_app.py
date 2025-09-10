@@ -34,7 +34,7 @@ class Calendar:
         self.current_month = datetime.datetime.now().month
         self.current_year = datetime.datetime.now().year
         
-        self.holiday_store = HolidayStore(holidays_file="holidays.txt")
+        self.holiday_store = HolidayStore(holidays_file="./assets/holidays.txt")
         
         self.day_names:List[str] = ["Pon", "Tor", "Sre", "Čet", "Pet", "Sob", "Ned"]
         

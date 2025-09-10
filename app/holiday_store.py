@@ -2,7 +2,7 @@ from tkinter import messagebox
 
 
 class HolidayStore:
-    def __init__(self, holidays_file: str = "holidays.txt"):
+    def __init__(self, holidays_file: str = "../assets/holidays.txt"):
         self.holidays_file = holidays_file
         self.holidays = set()
         
